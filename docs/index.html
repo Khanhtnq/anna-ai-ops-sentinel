@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnnaOps — Autonomous Multi-Agent Operations & Verification Hub</title>
+  <style>
+    :root {
+      --bg-dark: #070A0F;
+      --card-bg: rgba(14, 20, 32, 0.78);
+      --card-border: rgba(45, 60, 85, 0.5);
+      --accent-cyan: #00F0FF;
+      --accent-purple: #8B5CF6;
+      --accent-green: #10B981;
+      --accent-amber: #F59E0B;
+      --accent-red: #EF4444;
+      --text-main: #F3F4F6;
+      --text-dim: #94A3B8;
+      --code-bg: #030712;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 240, 255, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(10, 16, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+      color: #050811;
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .stat-pill {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+    }
+    .dot-online {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    nav.nav-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 12px 24px;
+      background: rgba(14, 20, 32, 0.4);
+      border-bottom: 1px solid var(--card-border);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .tab-btn.active {
+      color: #050811;
+      background: var(--accent-cyan);
+    }
+
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-cyan {
+      background: var(--accent-cyan);
+      color: #050811;
+    }
+    .btn-cyan:hover {
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+    }
+    .btn-purple {
+      background: var(--accent-purple);
+      color: #FFFFFF;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Colleague Cards */
+    .colleague-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .colleague-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      position: relative;
+    }
+    .colleague-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .colleague-icon {
+      font-size: 20px;
+    }
+    .colleague-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .colleague-role {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* Terminal / Code view */
+    .terminal-box {
+      background: var(--code-bg);
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #E2E8F0;
+      height: 320px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    /* Invariant rules badge */
+    .rule-item {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .rule-item:last-child { border-bottom: none; }
+    .badge-pass {
+      color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-warn {
+      color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.12);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Gate Card */
+    .gate-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .gate-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .confidence-meter {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      margin: 8px 0 14px 0;
+      overflow: hidden;
+    }
+    .confidence-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-amber), var(--accent-green));
+    }
+    .gate-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Progress bar for MAU */
+    .progress-track {
+      background: rgba(255, 255, 255, 0.08);
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      width: 71%;
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">AnnaOps</div>
+        <div style="font-size: 11px; color: var(--text-dim);">Multi-Agent SRE & Invariant Verification for Anna OS</div>
+      </div>
+      <span class="brand-badge">Schema 4 App</span>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill">
+        <div class="dot-online"></div>
+        <span>Anna Agent Nexus: <strong>v1.1 Stdio Online</strong></span>
+      </div>
+      <div class="stat-pill">
+        <span>CU Consumption: <strong id="cu-display" style="color: var(--accent-cyan);">24.8 / 150 CU</strong></span>
+      </div>
+      <div class="stat-pill">
+        <span>Qualified MAU: <strong style="color: var(--accent-purple);">142 / 200</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('mesh')">🤖 Colleague Mesh</button>
+    <button class="tab-btn" onclick="switchTab('verifier')">🛡️ Invariant Verifier</button>
+    <button class="tab-btn" onclick="switchTab('gates')">⚖️ Decision Gates</button>
+    <button class="tab-btn" onclick="switchTab('rpc')">💻 Executa JSON-RPC</button>
+    <button class="tab-btn" onclick="switchTab('mau')">📊 DoraHacks Grant Analytics</button>
+  </nav>
+
+  <!-- Main Content Areas -->
+  <main>
+    <!-- TAB 1: Colleague Mesh -->
+    <div id="tab-mesh" class="tab-content active">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title">
+          <span>Active Anna AI Colleagues (Autonomous Coordination Layer)</span>
+          <button class="btn btn-cyan" onclick="runColleagueDispatch()">🚀 Dispatch Coordinated Workflow</button>
+        </div>
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
+          Humans define the outcome in natural chat ("Conduct market intel, synthesize competitive angle, and verify launch guardrails"). Anna coordinates specialized colleagues under Causis Research causal verification.
+        </p>
+        <div class="colleague-grid">
+          <div class="colleague-card">
+            <div class="colleague-header">
+              <div class="colleague-icon">🔍</div>
+              <div>
+                <div class="colleague-name">Market Intel</div>
+                <div class="colleague-role">Research Specialist</div>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-dim);">DoraHacks builder data, competitor PR x-ray, trend radar.</p>
+            <div style="margin-top: 8px; font-size: 11px; color: var(--accent-cyan);">Status: READY (2.5 CU/task)</div>
+          </div>
+          <div class="colleague-card">
+            <div class="colleague-header">
+              <div class="colleague-icon">✍️</div>
+              <div>
+                <div class="colleague-name">Content & Social</div>
+                <div class="colleague-role">Growth Copywriting</div>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-dim);">X-threads, launch narratives, documentation synthesis.</p>
+            <div style="margin-top: 8px; font-size: 11px; color: var(--accent-cyan);">Status: READY (1.8 CU/task)</div>
+          </div>
+          <div class="colleague-card">
+            <div class="colleague-header">
+              <div class="colleague-icon">🚀</div>
+              <div>
+                <div class="colleague-name">Outbound Growth</div>
+                <div class="colleague-role">Ecosystem Outreach</div>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-dim);">DoraHacks voter engagement, builder coordination.</p>
+            <div style="margin-top: 8px; font-size: 11px; color: var(--accent-cyan);">Status: READY (3.0 CU/task)</div>
+          </div>
+          <div class="colleague-card">
+            <div class="colleague-header">
+              <div class="colleague-icon">💬</div>
+              <div>
+                <div class="colleague-name">Support & Admin</div>
+                <div class="colleague-role">Community Triage</div>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-dim);">FAQ resolution, ticket deflection, feedback indexing.</p>
+            <div style="margin-top: 8px; font-size: 11px; color: var(--accent-cyan);">Status: READY (1.2 CU/task)</div>
+          </div>
+          <div class="colleague-card" style="border-color: rgba(0, 240, 255, 0.4);">
+            <div class="colleague-header">
+              <div class="colleague-icon">⚡</div>
+              <div>
+                <div class="colleague-name">Verification SRE</div>
+                <div class="colleague-role">Invariant Auditor</div>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-dim);">Causis Research invariant verification & SHA-256 receipts.</p>
+            <div style="margin-top: 8px; font-size: 11px; color: var(--accent-cyan);">Status: ACTIVE AUDIT (2.0 CU/task)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Live Execution Trace & Telemetry</div>
+          <div id="mesh-terminal" class="terminal-box">[Ready] Standing by for multi-agent dispatch...
+Click 'Dispatch Coordinated Workflow' to trigger parallel colleague execution.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Realtime Workflow Architecture</div>
+          <svg viewBox="0 0 500 280" style="width: 100%; height: auto; background: rgba(0,0,0,0.2); border-radius: 6px;">
+            <rect x="20" y="110" width="100" height="50" rx="6" fill="#1E293B" stroke="#00F0FF" stroke-width="1.5"/>
+            <text x="70" y="132" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle">Anna Core</text>
+            <text x="70" y="148" fill="#94A3B8" font-size="9" text-anchor="middle">Orchestrator</text>
+
+            <path d="M 120 135 L 200 65" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="4"/>
+            <path d="M 120 135 L 200 135" stroke="#00F0FF" stroke-width="2"/>
+            <path d="M 120 135 L 200 205" stroke="#10B981" stroke-width="2" stroke-dasharray="4"/>
+
+            <rect x="200" y="40" width="110" height="45" rx="6" fill="#1E293B" stroke="#8B5CF6"/>
+            <text x="255" y="62" fill="#FFFFFF" font-size="10" font-weight="bold" text-anchor="middle">Market Intel</text>
+            <text x="255" y="76" fill="#94A3B8" font-size="8" text-anchor="middle">Research Agent</text>
+
+            <rect x="200" y="112" width="110" height="45" rx="6" fill="#1E293B" stroke="#00F0FF"/>
+            <text x="255" y="134" fill="#FFFFFF" font-size="10" font-weight="bold" text-anchor="middle">Content & Social</text>
+            <text x="255" y="148" fill="#94A3B8" font-size="8" text-anchor="middle">Synthesis Agent</text>
+
+            <rect x="200" y="185" width="110" height="45" rx="6" fill="#1E293B" stroke="#10B981"/>
+            <text x="255" y="207" fill="#FFFFFF" font-size="10" font-weight="bold" text-anchor="middle">Outbound Agent</text>
+            <text x="255" y="221" fill="#94A3B8" font-size="8" text-anchor="middle">Growth Operations</text>
+
+            <path d="M 310 65 L 370 135" stroke="#8B5CF6" stroke-width="2"/>
+            <path d="M 310 135 L 370 135" stroke="#00F0FF" stroke-width="2"/>
+            <path d="M 310 205 L 370 135" stroke="#10B981" stroke-width="2"/>
+
+            <rect x="370" y="110" width="110" height="50" rx="6" fill="#1E293B" stroke="#10B981" stroke-width="1.5"/>
+            <text x="425" y="132" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle">Invariant Verifier</text>
+            <text x="425" y="148" fill="#10B981" font-size="9" text-anchor="middle">Receipt SHA-256</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Invariant Verifier -->
+    <div id="tab-verifier" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">
+            <span>Causis Research Invariant Rules</span>
+            <button class="btn btn-outline" onclick="testSyntheticAnomaly()">Inject Synthetic Anomaly</button>
+          </div>
+          <div class="rule-item">
+            <div>
+              <div style="font-weight: 600; font-size: 13px;">RULE-INV-001: Acyclic Delegation Guard</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Guarantees DAG topology; halts circular recursion loops.</div>
+            </div>
+            <span class="badge-pass" id="rule-1-status">PASSED</span>
+          </div>
+          <div class="rule-item">
+            <div>
+              <div style="font-weight: 600; font-size: 13px;">RULE-CAUSAL-002: Counterfactual Safety Gate</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Validates counterfactual interventions on high-impact external actions.</div>
+            </div>
+            <span class="badge-pass" id="rule-2-status">PASSED</span>
+          </div>
+          <div class="rule-item">
+            <div>
+              <div style="font-weight: 600; font-size: 13px;">RULE-PERF-003: CU & Latency Budget Envelope</div>
+              <div style="font-size: 11px; color: var(--text-dim);">Enforces &lt; 150 CU and &lt; 6,000ms latency limits.</div>
+            </div>
+            <span class="badge-pass" id="rule-3-status">PASSED</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Verification Ledger & Cryptographic Proofs</div>
+          <div id="verifier-terminal" class="terminal-box">[Audit Log] All systems operational.
+Verified Trace: trace-1731558291
+Status: APPROVED
+SHA-256 Receipt: 7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069
+Evaluations: 3/3 passed. Zero invariant breaches detected.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Decision Gates -->
+    <div id="tab-gates" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Human-in-the-Loop Decision Gates</span>
+          <button class="btn btn-purple" onclick="createSampleGate()">+ Create Synthetic High-Risk Gate</button>
+        </div>
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
+          Instead of brittle prompts or uncontrolled automated writes, Anna pauses at critical decision gates and requests human verification.
+        </p>
+        <div id="gates-container">
+          <div class="gate-card" id="gate-card-001">
+            <div class="gate-meta">
+              <span>GATE ID: <strong>gate-17315590-01</strong></span>
+              <span style="color: var(--accent-amber); font-weight: 600;">ACTION: EXTERNAL_TRANSACT</span>
+            </div>
+            <div style="font-weight: 700; font-size: 14px;">Approve DoraHacks App Builder Grant Claim (Tier 1: $1,000 / month)</div>
+            <div style="font-size: 12px; color: var(--text-dim); margin-top: 4px;">
+              Autonomous Outbound Colleague reached 142 Qualified MAU and requests milestone payout verification.
+            </div>
+            <div style="margin-top: 10px; font-size: 11px; display: flex; justify-content: space-between;">
+              <span>Model Confidence:</span>
+              <strong style="color: var(--accent-amber);">78.4% (Threshold: 88%)</strong>
+            </div>
+            <div class="confidence-meter">
+              <div class="confidence-bar" style="width: 78.4%;"></div>
+            </div>
+            <div class="gate-actions" id="gate-actions-001">
+              <button class="btn btn-cyan" onclick="resolveGate('gate-17315590-01', true)">✓ Approve & Sign Receipt</button>
+              <button class="btn btn-outline" style="border-color: var(--accent-red); color: var(--accent-red);" onclick="resolveGate('gate-17315590-01', false)">✗ Reject Action</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Executa JSON-RPC 2.0 Simulator -->
+    <div id="tab-rpc" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Executa stdio Client Simulator (v1.1)</div>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button class="btn btn-outline" onclick="sendRpc('describe')">describe</button>
+            <button class="btn btn-outline" onclick="sendRpc('health')">health</button>
+            <button class="btn btn-outline" onclick="sendRpc('invoke_verify')">invoke: verify_agent_pipeline</button>
+            <button class="btn btn-outline" onclick="sendRpc('invoke_orchestrate')">invoke: orchestrate_colleagues</button>
+          </div>
+          <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 6px;">JSON-RPC Request Payload:</div>
+          <div id="rpc-req-box" class="terminal-box" style="height: 220px;">{"jsonrpc": "2.0", "method": "describe", "id": 1}</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Plugin Response (stdout Frame)</div>
+          <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 6px;">Parsed Result (with _display block):</div>
+          <div id="rpc-res-box" class="terminal-box" style="height: 270px;">[Ready] Click an RPC button to simulate host-plugin communication.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: DoraHacks Analytics -->
+    <div id="tab-mau" class="tab-content">
+      <div class="card">
+        <div class="card-title">DoraHacks Anna AI App Builder Program — Grant Scaling</div>
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">
+          Eligibility: Up to $80,000 monthly grant pool. Recurring grants unlocked at 200 Qualified Monthly Active Users (MAU).
+        </p>
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span>Current Traction: <strong>142 MAU</strong></span>
+          <span>Target Milestone: <strong>200 MAU (71% Reached)</strong></span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="mau-progress-fill"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px;">
+          <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
+            <div style="font-size: 11px; color: var(--text-dim);">Tier 1 Baseline</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan); margin: 4px 0;">200 MAU</div>
+            <div style="font-size: 11px; color: var(--accent-green);">$1,000 / mo recurring</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
+            <div style="font-size: 11px; color: var(--text-dim);">Tier 2 Scale</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-purple); margin: 4px 0;">1,000 MAU</div>
+            <div style="font-size: 11px; color: var(--accent-green);">$5,000 / mo recurring</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
+            <div style="font-size: 11px; color: var(--text-dim);">Tier 3 Apex</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-amber); margin: 4px 0;">5,000+ MAU</div>
+            <div style="font-size: 11px; color: var(--accent-green);">$15,000+ / mo recurring</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function switchTab(tabKey) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + tabKey).classList.add('active');
+    }
+
+    let cuCount = 24.8;
+    function runColleagueDispatch() {
+      const term = document.getElementById('mesh-terminal');
+      term.innerHTML = '[10:14:02] Initializing Anna Colleague Mesh Dispatch...\n';
+      term.innerHTML += '→ Target Objective: "Autonomous Market Verification & Growth Audit"\n';
+      setTimeout(() => {
+        term.innerHTML += '→ [Colleague: Market Intel] Executed subtask (2.5 CU) — Analyzed DoraHacks BUIDL registry\n';
+        term.innerHTML += '→ [Colleague: Content & Social] Synthesized report (1.8 CU) — Ready for publication\n';
+        term.innerHTML += '→ [Colleague: Verification SRE] Running Invariant Checks...\n';
+      }, 400);
+
+      setTimeout(() => {
+        cuCount = +(cuCount + 6.3).toFixed(2);
+        document.getElementById('cu-display').innerText = cuCount + ' / 150 CU';
+        term.innerHTML += '✓ [Invariant Proof Passed] Acyclic delegation verified. Receipt SHA-256:\n';
+        term.innerHTML += '  8b1a4c9f02d7e1329bbf9a87cd52e41846c9213459fa42194d21e8b7c31a6190\n';
+        term.innerHTML += '[Complete] Workflow committed to Anna OS state safely.';
+      }, 900);
+    }
+
+    function testSyntheticAnomaly() {
+      const vterm = document.getElementById('verifier-terminal');
+      vterm.innerHTML = '[ALERT] Injecting synthetic circular delegation trace:\n';
+      vterm.innerHTML += 'Call Chain: ["research", "outbound", "research"] (Cycle detected!)\n';
+      document.getElementById('rule-1-status').className = 'badge-warn';
+      document.getElementById('rule-1-status').innerText = 'CYCLE BLOCKED';
+
+      setTimeout(() => {
+        vterm.innerHTML += '→ Invariant Rule RULE-INV-001 triggered: Halting agent dispatch.\n';
+        vterm.innerHTML += '→ Prevented infinite CU consumption loop.\n';
+        vterm.innerHTML += '→ Routed to Human Decision Gate for supervisor review.\n';
+      }, 500);
+
+      setTimeout(() => {
+        document.getElementById('rule-1-status').className = 'badge-pass';
+        document.getElementById('rule-1-status').innerText = 'PASSED';
+      }, 4000);
+    }
+
+    function resolveGate(gateId, approved) {
+      const card = document.getElementById('gate-card-001');
+      const actions = document.getElementById('gate-actions-001');
+      if (approved) {
+        actions.innerHTML = '<span style="color: var(--accent-green); font-weight: bold;">✓ APPROVED by Operator. Cryptographic receipt logged.</span>';
+      } else {
+        actions.innerHTML = '<span style="color: var(--accent-red); font-weight: bold;">✗ REJECTED by Operator. Action cancelled safely.</span>';
+      }
+    }
+
+    function createSampleGate() {
+      const container = document.getElementById('gates-container');
+      const newId = 'gate-' + Math.floor(Math.random() * 899999 + 100000);
+      const div = document.createElement('div');
+      div.className = 'gate-card';
+      div.innerHTML = `
+        <div class="gate-meta">
+          <span>GATE ID: <strong>${newId}</strong></span>
+          <span style="color: var(--accent-amber); font-weight: 600;">ACTION: MASS_DISPATCH</span>
+        </div>
+        <div style="font-weight: 700; font-size: 14px;">Deploy Social Campaign to 500+ Solana Builders</div>
+        <div style="font-size: 12px; color: var(--text-dim); margin-top: 4px;">
+          Automated outreach pipeline generated from content colleague.
+        </div>
+        <div style="margin-top: 10px; font-size: 11px; display: flex; justify-content: space-between;">
+          <span>Model Confidence:</span>
+          <strong style="color: var(--accent-amber);">71.2% (Threshold: 88%)</strong>
+        </div>
+        <div class="confidence-meter">
+          <div class="confidence-bar" style="width: 71.2%;"></div>
+        </div>
+        <div class="gate-actions">
+          <button class="btn btn-cyan" onclick="this.parentElement.innerHTML='<span style=\\'color: var(--accent-green); font-weight: bold;\\'>✓ APPROVED</span>'">✓ Approve</button>
+          <button class="btn btn-outline" style="border-color: var(--accent-red); color: var(--accent-red);" onclick="this.parentElement.innerHTML='<span style=\\'color: var(--accent-red); font-weight: bold;\\'>✗ REJECTED</span>'">✗ Reject</button>
+        </div>
+      `;
+      container.prepend(div);
+    }
+
+    function sendRpc(type) {
+      const reqBox = document.getElementById('rpc-req-box');
+      const resBox = document.getElementById('rpc-res-box');
+
+      if (type === 'describe') {
+        reqBox.innerText = JSON.stringify({ jsonrpc: "2.0", method: "describe", id: 1 }, null, 2);
+        resBox.innerText = JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          result: {
+            name: "anna-ops-verification",
+            display_name: "AnnaOps Verification & Operations Hub",
+            version: "1.0.0",
+            category: "developer-tools",
+            tools: ["verify_agent_pipeline", "orchestrate_colleagues", "audit_decision_gate", "export_audit_receipt"],
+            runtime: { type: "python", min_version: "3.10" }
+          }
+        }, null, 2);
+      } else if (type === 'health') {
+        reqBox.innerText = JSON.stringify({ jsonrpc: "2.0", method: "health", id: 2 }, null, 2);
+        resBox.innerText = JSON.stringify({
+          jsonrpc: "2.0",
+          id: 2,
+          result: {
+            status: "ready",
+            uptime_seconds: 48.2,
+            details: { version: "1.0.0", colleagues_ready: 5 }
+          }
+        }, null, 2);
+      } else if (type === 'invoke_verify') {
+        reqBox.innerText = JSON.stringify({
+          jsonrpc: "2.0",
+          method: "invoke",
+          id: 3,
+          params: {
+            tool: "verify_agent_pipeline",
+            arguments: { call_chain: ["research", "content", "verification"], cu_consumed: 12.5, action_type: "READ" }
+          }
+        }, null, 2);
+        resBox.innerText = JSON.stringify({
+          jsonrpc: "2.0",
+          id: 3,
+          result: {
+            success: true,
+            data: {
+              trace_id: "trace-918237",
+              verified: true,
+              status: "APPROVED",
+              receipt_hash: "a4c2...91f0",
+              _display: "✅ AnnaOps Invariant Verification Report\n- Trace ID: trace-918237\n- Verdict: APPROVED"
+            },
+            duration_ms: 1.45
+          }
+        }, null, 2);
+      } else if (type === 'invoke_orchestrate') {
+        reqBox.innerText = JSON.stringify({
+          jsonrpc: "2.0",
+          method: "invoke",
+          id: 4,
+          params: {
+            tool: "orchestrate_colleagues",
+            arguments: { objective: "Audit ecosystem growth", roles: ["research", "verification"] }
+          }
+        }, null, 2);
+        resBox.innerText = JSON.stringify({
+          jsonrpc: "2.0",
+          id: 4,
+          result: {
+            success: true,
+            data: {
+              workflow_id: "wf-71a28f",
+              colleagues_involved: 2,
+              total_cu: 4.5,
+              latency_ms: 12.8,
+              _display: "🤖 Anna Colleague Team Dispatched\n- Total CU: 4.5 CU\n- Status: VERIFIED SAFE"
+            },
+            duration_ms: 13.2
+          }
+        }, null, 2);
+      }
+    }
+  </script>
+</body>
+</html>
