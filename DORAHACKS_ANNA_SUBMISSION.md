@@ -9,6 +9,7 @@
 - **Repository:** `https://github.com/Khanhtnq/anna-ai-ops-sentinel`
 - **Live Interactive Dashboard & Invariant Sandbox:** `https://khanhtnq.github.io/anna-ai-ops-sentinel/` (`docs/index.html`)
 - **Demo Video:** `assets/demo_anna_1080p.mp4` (40 seconds, 1920x1080 Full HD, 30 fps)
+- **YouTube Demo Video (1080p PUBLIC):** `https://youtu.be/eZOwxTcMM4A` (`https://www.youtube.com/watch?v=eZOwxTcMM4A`)
 - **Cover Thumbnail:** `assets/thumbnail_1280x800.png` (1280x800)
 - **License:** MIT License
 

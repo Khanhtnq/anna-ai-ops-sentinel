@@ -5,7 +5,8 @@
 
 - **Live Interactive Demo & Invariant Sandbox:** https://khanhtnq.github.io/anna-ai-ops-sentinel/
 - **Repository:** https://github.com/Khanhtnq/anna-ai-ops-sentinel
-- **Demo Video:** [`assets/demo_anna_1080p.mp4`](assets/demo_anna_1080p.mp4) (40s, 1920x1080 Full HD, 30 fps)
+- **YouTube Demo Video (1080p Narrated):** [https://youtu.be/eZOwxTcMM4A](https://youtu.be/eZOwxTcMM4A) ([Watch on YouTube](https://www.youtube.com/watch?v=eZOwxTcMM4A))
+- **Demo Video:** [`assets/demo_anna_1080p.mp4`](assets/demo_anna_1080p.mp4) (40s, 1920x1080 Full HD, 30 fps) | [Hosted MP4](https://khanhtnq.github.io/anna-ai-ops-sentinel/demo_anna_1080p.mp4)
 
 ---
 
