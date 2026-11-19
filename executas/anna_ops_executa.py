@@ -35,7 +35,7 @@ class AnnaOpsExecuta:
             "version": "1.0.0",
             "description": "Multi-agent coordination, Causis Research invariant checking, and human-in-the-loop decision gating for Anna OS.",
             "author": "Khanhtnq",
-            "homepage": "https://github.com/Khanhtnq/anna-ops-buidl",
+            "homepage": "https://github.com/Khanhtnq/anna-ai-ops-sentinel",
             "icon": "⚡",
             "category": "developer-tools",
             "license": "MIT",

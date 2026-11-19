@@ -63,6 +63,17 @@ class TestVerificationEngine(unittest.TestCase):
         res = self.verifier.verify_pipeline(trace)
         self.assertFalse(res["verified"])
 
+    def test_total_cu_fallback_from_orchestrator(self):
+        trace = {
+            "call_chain": ["research", "content"],
+            "total_cu": 165.0,
+            "latency_ms": 120.0
+        }
+        res = self.verifier.verify_pipeline(trace)
+        self.assertFalse(res["verified"])
+        budget_eval = next(e for e in res["evaluations"] if e["rule_id"] == "RULE-PERF-003")
+        self.assertFalse(budget_eval["passed"])
+
     def test_receipt_hash_determinism(self):
         trace = {
             "trace_id": "static-trace-1",

@@ -39,6 +39,7 @@ class TestExecutaProtocol(unittest.TestCase):
         self.assertEqual(resp.get("id"), 1)
         res = resp.get("result", {})
         self.assertEqual(res.get("name"), "anna-ops-verification")
+        self.assertEqual(res.get("homepage"), "https://github.com/Khanhtnq/anna-ai-ops-sentinel")
         self.assertIn("tools", res)
         tool_names = [t["name"] for t in res["tools"]]
         self.assertIn("verify_agent_pipeline", tool_names)
@@ -103,6 +104,30 @@ class TestExecutaProtocol(unittest.TestCase):
         self.assertEqual(resp.get("id"), 99)
         self.assertIn("error", resp)
         self.assertEqual(resp["error"]["code"], -32601)
+
+    def test_invoke_audit_decision_gate_and_export(self):
+        req = {
+            "jsonrpc": "2.0",
+            "method": "invoke",
+            "id": 5,
+            "params": {
+                "tool": "audit_decision_gate",
+                "arguments": {
+                    "action": "create",
+                    "title": "External Payout",
+                    "proposal": "Disburse 100 USDC bounty",
+                    "action_type": "TRANSACT",
+                    "confidence": 0.78
+                }
+            }
+        }
+        resp = self._call_rpc(req)
+        self.assertEqual(resp.get("id"), 5)
+        res = resp.get("result", {})
+        self.assertTrue(res.get("success"))
+        data = res.get("data", {})
+        self.assertEqual(data.get("status"), "PENDING_REVIEW")
+        self.assertIn("_display", data)
 
 if __name__ == "__main__":
     unittest.main()

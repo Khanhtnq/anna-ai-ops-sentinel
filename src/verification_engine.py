@@ -98,7 +98,7 @@ class BudgetGuardRule(VerificationRule):
         self.max_latency_ms = max_latency_ms
 
     def evaluate(self, trace_data: Dict[str, Any]) -> Dict[str, Any]:
-        cu_consumed = float(trace_data.get("cu_consumed", 0.0))
+        cu_consumed = float(trace_data.get("cu_consumed", trace_data.get("total_cu", 0.0)))
         latency_ms = float(trace_data.get("latency_ms", 0.0))
 
         passed = (cu_consumed <= self.max_cu) and (latency_ms <= self.max_latency_ms)
